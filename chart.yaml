@@ -10,7 +10,7 @@ global:
       MANAGEMENT_IP: "xxx.nonamesec.com"
       DATA_ORCHESTRATION_ENABLE_SSL: "true"
     volume:
-      existingPVCName: null # Set your persistent volume name here
+      existingPVCName: nonamesec-engine # Set your persistent volume name here
   active:
     enabled: false
   imageCredentials:

@@ -23,7 +23,7 @@ jobs:
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
-        role-to-assume: arn:aws:iam::123456789012:role/your-github-oidc-role # Set your OIDC role ARN
+        role-to-assume: ${{ secrets.AWS_OIDC_ROLE_TO_ASSUME }}
         aws-region: ${{ env.AWS_REGION }}
 
     - name: Update kubeconfig
@@ -38,9 +38,7 @@ jobs:
 
     - name: Deploy NonameSec Engine using Helm
       run: |
-        helm upgrade --install nonamesec-engine your-helm-chart-location # Replace with your Helm chart location
-        # Add any additional Helm arguments as needed
-
+        helm upgrade --install nonamesec-engine ./chart.yaml 
     - name: Verify deployment
       run: |
         # Add any commands to verify the deployment

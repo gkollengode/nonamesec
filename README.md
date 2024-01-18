@@ -1,18 +1,45 @@
-## Nonamesecurity 
-# Prerequisites
-- git
-- kubectl
-- eksctl
+# NonameSec Installation
 
-# Deploying  deploy-to-eks-using-github-actions
-1. Create an EKS Cluster following these steps:
-```
-cp cluster.yaml.example cluster.yaml
-```
-Edit the elements tagged xxx with correct values for your AWS account
-``` 
-eksctl create cluster -f cluster.yaml
-```
+This details installation and daily operations of the nonamesec product on the GISCS environment. 
+
+
+## Installation prerequisites
+
+ - AWS Credentials (AWS_ACCESS_KEY, AWS_SECRET_ACCESS_KEY and AWS_DEFAULT_REGION)
+ - eksctl
+ - kubectl
+ - helm. Follow instructions as detailed [here](https://helm.sh/docs/intro/install/) 
+ - kustomize. Instructions for installing is located [here](https://kubectl.docs.kubernetes.io/installation/kustomize/)
+ - Github org
+
+
+## Create the Cluster
+Follow these steps
+
+    git clone https://github.com/<ORG-TBD>/<REPO_TBD>/nonanamesec.git
+    cd nonamesec/<ENV_TO_DEPLOY>
+Edit the ```cluster.yaml``` file to match your AWS environment.
+
+    eksctl create cluster -f cluster.yaml
+Wait while the EKS cluster becomes available ( shoud take about 10 - 15 minutes to complete initilalization)
+
+
+## Destroy the cluster
+
+Enter ```eksctl delete cluster --clustername nonamesec```
+
+
+## Create files and folders
+
+We use kustomize to set specific values per environment. Folders *environments/[sandbox, pre-prod, prod]* contain specific values for each environment
+
+
+
+
+
+
+
+
 Typical output of successful completion will have similar output as shown below
 
 ```
@@ -42,6 +69,5 @@ Alternatively you can monitor your AWS CloudFormation  stack for events related 
 5. Create secrets in github repo
         Go to settings of repo
         click on secrets and variables
-6. Test application by getting the dns name and going to a web browser
+6. Test communication to the nonamesec UI using a web browser
 
-Clean up: Run: eksctl delete cluster --name primuslearning
