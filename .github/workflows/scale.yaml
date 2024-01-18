@@ -1,0 +1,66 @@
+name: EKS Nodegroup Scheduler
+
+on:
+  schedule:
+    # At 09:00 AM EST (which is 14:00 UTC) on every day-of-week from Monday to Friday.
+    - cron: '0 14 * * 1-5'
+    # At 05:00 PM EST (which is 22:00 UTC) on every day-of-week from Monday to Friday.
+    - cron: '0 22 * * 1-5'
+
+jobs:
+  eks-nodegroup-management:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        environment: [sandbox, non-prod]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        role-to-assume: ${{ secrets.AWS_OIDC_ROLE_TO_ASSUME }}
+        aws-region: us-west-1
+
+    - name: Start or Stop EKS Nodegroups
+      env:
+        SANDBOX_SECRET: ${{ secrets.SANDBOX_SECRET }}
+        NON_PROD_SECRET: ${{ secrets.NON_PROD_SECRET }}
+      run: |
+        # Define function to manage nodegroups
+        manage_nodegroup() {
+          cluster_name=$1
+          environment=$2
+          action=$3
+          echo "Action: $action, Cluster: $cluster_name, Environment: $environment"
+
+          # List all nodegroups
+          nodegroups=$(eksctl get nodegroup --cluster $cluster_name -o json | jq -r '.[].Name')
+
+          # Loop through nodegroups and perform action
+          for ng in $nodegroups; do
+            if [[ $ng == *"$environment"* ]]; then
+              eksctl scale nodegroup --cluster=$cluster_name --name=$ng --nodes=0 --region=<AWS_REGION>
+            fi
+          done
+        }
+
+        # Determine current hour and day
+        hour=$(date +"%H")
+        day=$(date +"%u")
+
+        # Define cluster name
+        cluster_name="nonamesec"
+
+        # Check if it's a weekday
+        if [ $day -lt 6 ]; then
+          if [ "$hour" -eq "14" ]; then
+            # Start nodegroups at 9:00 AM EST
+            manage_nodegroup $cluster_name ${{ matrix.environment }} "start"
+          elif [ "$hour" -eq "22" ]; then
+            # Stop nodegroups at 5:00 PM EST
+            manage_nodegroup $cluster_name ${{ matrix.environment }} "stop"
+          fi
+        fi
