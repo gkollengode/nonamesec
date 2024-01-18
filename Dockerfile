@@ -1,12 +1,8 @@
-FROM node:14-alpine
+FROM alpine/k8s:1.26.10
+    
+COPY deploy.sh /usr/local/bin/deploy
 
-# Create app directory
-WORKDIR /usr/src/app
+RUN chmod +x /usr/local/bin/deploy ;\
+    chown 555 /usr/local/bin/deploy
 
-COPY . .
-
-RUN npm install
-
-EXPOSE 8080
-
-CMD [ "node", "server.js" ]
+CMD deploy
