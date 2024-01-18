@@ -1,0 +1,46 @@
+name: Deploy NonameSec Engine to AWS EKS
+
+on:
+  push:
+    branches:
+      - master 
+
+env:
+  AWS_REGION: 'us-west-1'
+  EKS_CLUSTER_NAME: 'nonamesec'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        role-to-assume: arn:aws:iam::123456789012:role/your-github-oidc-role # Set your OIDC role ARN
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Update kubeconfig
+      run: |
+        aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.EKS_CLUSTER_NAME }}
+
+    - name: Install Helm (if needed)
+      run: |
+        curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+        chmod 700 get_helm.sh
+        ./get_helm.sh
+
+    - name: Deploy NonameSec Engine using Helm
+      run: |
+        helm upgrade --install nonamesec-engine your-helm-chart-location # Replace with your Helm chart location
+        # Add any additional Helm arguments as needed
+
+    - name: Verify deployment
+      run: |
+        # Add any commands to verify the deployment
