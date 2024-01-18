@@ -2,13 +2,11 @@ name: EKS Nodegroup Scheduler
 
 on:
   schedule:
-    # At 09:00 AM EST (which is 14:00 UTC) on every day-of-week from Monday to Friday.
-    - cron: '0 14 * * 1-5'
-    # At 05:00 PM EST (which is 22:00 UTC) on every day-of-week from Monday to Friday.
-    - cron: '0 22 * * 1-5'
+    - cron: '0 21 * * 1-5' # 9:00 PM UTC (5:00 PM EST) - Stop nodes, Mon-Fri
+    - cron: '0 13 * * 1-5' # 1:00 PM UTC (9:00 AM EST) - Start nodes, Mon-Fri
 
 jobs:
-  eks-nodegroup-management:
+  manage-nodegroups:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -21,46 +19,24 @@ jobs:
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
-        role-to-assume: ${{ secrets.AWS_OIDC_ROLE_TO_ASSUME }}
-        aws-region: us-west-1
+        role-to-assume: ${{ secrets['AWS_ROLE_' + matrix.environment] }}
+        aws-region: us-east-1
 
-    - name: Start or Stop EKS Nodegroups
-      env:
-        SANDBOX_SECRET: ${{ secrets.SANDBOX_SECRET }}
-        NON_PROD_SECRET: ${{ secrets.NON_PROD_SECRET }}
+    - name: Install eksctl
       run: |
-        # Define function to manage nodegroups
-        manage_nodegroup() {
-          cluster_name=$1
-          environment=$2
-          action=$3
-          echo "Action: $action, Cluster: $cluster_name, Environment: $environment"
+        curl --silent --location "https://github.com/weaveworks/eksctl/releases/download/latest_release/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+        sudo mv /tmp/eksctl /usr/local/bin
 
-          # List all nodegroups
-          nodegroups=$(eksctl get nodegroup --cluster $cluster_name -o json | jq -r '.[].Name')
-
-          # Loop through nodegroups and perform action
-          for ng in $nodegroups; do
-            if [[ $ng == *"$environment"* ]]; then
-              eksctl scale nodegroup --cluster=$cluster_name --name=$ng --nodes=0 --region=<AWS_REGION>
-            fi
-          done
-        }
-
-        # Determine current hour and day
-        hour=$(date +"%H")
-        day=$(date +"%u")
-
-        # Define cluster name
-        cluster_name="nonamesec"
-
-        # Check if it's a weekday
-        if [ $day -lt 6 ]; then
-          if [ "$hour" -eq "14" ]; then
-            # Start nodegroups at 9:00 AM EST
-            manage_nodegroup $cluster_name ${{ matrix.environment }} "start"
-          elif [ "$hour" -eq "22" ]; then
-            # Stop nodegroups at 5:00 PM EST
-            manage_nodegroup $cluster_name ${{ matrix.environment }} "stop"
-          fi
+    - name: Manage EKS Nodegroups
+      env:
+        EKS_CLUSTER_NAME: nonamesec
+        NODEGROUP_NAME: ${{ secrets['NODEGROUP_NAME_' + matrix.environment] }}
+      run: |
+        HOUR=$(date +'%H')
+        if [ "$HOUR" -eq 21 ]; then
+          # Stop nodes at 5:00 PM EST
+          eksctl scale nodegroup --cluster=$EKS_CLUSTER_NAME --name=$NODEGROUP_NAME --nodes=0
+        elif [ "$HOUR" -eq 13 ]; then
+          # Start nodes at 9:00 AM EST
+          eksctl scale nodegroup --cluster=$EKS_CLUSTER_NAME --name=$NODEGROUP_NAME --nodes-min=1 --nodes=1
         fi
