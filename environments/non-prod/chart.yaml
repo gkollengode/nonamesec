@@ -1,0 +1,21 @@
+global:
+  engine:
+    engine_id: "xxx"
+    remote_keys_encoded: "xxxZTJiZDYxNjY2MjcyYzhhNWVmMTVkMzE2MDkxZjg0YTkjZFNRelAvQVBjYld5L055elNTZVdVQzlQVll3ejlKVUwjZ3Nyb3ZQTnQ2WDdhbHhrOTNobG9JWkgwOCt1TENxeFNtNEVmc2VLU2t3Z2l0Tjh4MzJiYTBTSEFOUlVRdEhLNWFudlBEaWNDeXBNLzRsODM0K3k5UEE9PSNIUzI1NiNUbEZvb21BMlhseDU4RzJmNVZ4eGVHZ3pZNnFNeWVCd0ZmWGl0MWVxZGVjPSNsTjNUQUp4TWFsSkZPMVNDeENCZ3lkYkRqR3VwQ2QyNyNtb25pdG9yaW5nLXNhYXMubm9uYW1lc2VjLmNvbQ=="
+    env:
+      MANAGEMENT_IP: "xxx.nonamesec.com"
+    volume:
+      existingPVCName: XXXn # Set your persistent volume name here
+  imageCredentials: "xxx"
+  engine_platform:
+    env:
+      DATA_ORCHESTRATION_PUBLIC_HOSTNAME: "xx.nonamesec.com"
+  router:
+    replicas: 1
+      DATA_ORCHESTRATION_PUBLIC_HOSTNAME: "xxx.nonamesec.com"
+  nats:
+    replicas: 1
+ingress:
+  hosts:
+    - host: "x.x.x.x"
+      
