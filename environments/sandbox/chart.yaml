@@ -5,7 +5,7 @@ global:
     env:
       MANAGEMENT_IP: "xxx.nonamesec.com"
     volume:
-      existingPVCName: XXXn # Set your persistent volume name here
+      existingPVCName: XXX # Set your persistent volume name here
   imageCredentials: "xxx"
   engine_platform:
     env:
