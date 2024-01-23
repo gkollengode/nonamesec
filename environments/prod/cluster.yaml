@@ -7,14 +7,14 @@ metadata:
 vpc:
   subnets:
     private:
-      us-west-1c: { id: subnet-00328a78b9d66aa6c }
-      us-west-1a: { id: subnet-0bdb7e45a28bcb3c3 }
+      us-west-1c: { id: subnet-00e139a73d7730d7b }
+      us-west-1a: { id: subnet-0bb69516dd845c954 }
 
 nodeGroups:
   - name: noname-engines
     instanceType: m5.large
     desiredCapacity: 1
-    minSize: 1
+    minSize: 0
     maxSize: 2
     volumeSize: 40
     privateNetworking: true
