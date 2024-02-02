@@ -5,7 +5,7 @@ This details installation and daily operations of the nonamesec product on the G
 
 
 ```
-mermaid.js
+mermaid
 graph TD
     client[Client] -->|1. Request| loadBalancer{Load Balancer}
     loadBalancer -->|2. Distribute| webServer1[Web Server 1]
