@@ -2,8 +2,8 @@ name: EKS Nodegroup Scheduler
 
 on:
   schedule:
-    - cron: '0 21 * * 1-5' # 9:00 PM UTC (5:00 PM EST) - Stop nodes, Mon-Fri
-    - cron: '0 13 * * 1-5' # 1:00 PM UTC (9:00 AM EST) - Start nodes, Mon-Fri
+    #- cron: '0 21 * * 1-5' # 9:00 PM UTC (5:00 PM EST) - Stop nodes, Mon-Fri
+    #- cron: '0 13 * * 1-5' # 1:00 PM UTC (9:00 AM EST) - Start nodes, Mon-Fri
 
 jobs:
   manage-nodegroups:
